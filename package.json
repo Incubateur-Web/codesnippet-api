@@ -1,4 +1,8 @@
 {
+  "name": "code-snippet-api",
+  "version": "1.0.0",
+  "description": "Backend of the project Code Snippet",
+  "author": "Code Snippet Team",
   "main": "build/app.js",
   "scripts": {
     "start": "tsc -p tsconfig.json && node build/app.js"
