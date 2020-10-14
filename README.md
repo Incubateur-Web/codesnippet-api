@@ -1,4 +1,4 @@
-# API Framework
+# API Code Snippet
 ![Release](https://img.shields.io/github/v/release/Lelberto/api-framework?style=flat-square)
 ![Express version](https://img.shields.io/github/package-json/dependency-version/Lelberto/api-framework/express?style=flat-square)
 
