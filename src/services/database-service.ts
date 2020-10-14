@@ -36,7 +36,7 @@ export default class DatabaseService extends Service {
      * @async
      */
     public async connect(host: string, port: string | number, dbName: string): Promise<void> {
-        await this.mongoose.connect(`mongodb://${host}:${port}/${dbName}`, {
+        await this.mongoose.connect(host, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
