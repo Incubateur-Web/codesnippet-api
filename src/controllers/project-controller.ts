@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { ProjectInstance } from '../models/project-model';
 import ServiceContainer from '../services/service-container';
 import Controller, { Link } from './controller';
 
@@ -174,36 +175,14 @@ export default class ProjectController extends Controller {
                     error_description: 'Project not found'
                 }));
             }
-            if (req.body.title != null) {
-                project.title = req.body.title;
+
+            for (const [key, value] of Object.entries(req.body)){
+                // console.log(`${project[key]}: ${value}`);
+                if (value != null) {
+                    project[key] = value;
+                }
             }
-            if (req.body.description != null) {
-                project.description = req.body.description;
-            }
-            if (req.body.avatar != null) {
-                project.avatar = req.body.avatar;
-            }
-            if (req.body.idAWS != null) {
-                project.idAWS = req.body.idAWS;
-            }
-            if (req.body.idOwner != null) {
-                project.idOwner = req.body.idOwner;
-            }
-            if (req.body.adminsList != null) {
-                project.adminsList = req.body.adminsList;
-            }
-            if (req.body.editorsList != null) {
-                project.editorsList = req.body.editorsList;
-            }
-            if (req.body.readersList != null) {
-                project.readersList = req.body.readersList;
-            }
-            if (req.body.filesList != null) {
-                project.filesList = req.body.filesList;
-            }
-            if (req.body.foldersList != null) {
-                project.foldersList = req.body.foldersList;
-            }
+
             await project.save();
             return res.status(200).send({
                 id: project.id,

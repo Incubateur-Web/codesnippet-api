@@ -6,6 +6,7 @@ import Attributes from './model';
  * Project attributes interface.
  */
 export interface ProjectAttributes extends Attributes {
+    [key: string]: string | Date | number | string[] | any;
     title: string;
     description: string;
     avatar: string;
