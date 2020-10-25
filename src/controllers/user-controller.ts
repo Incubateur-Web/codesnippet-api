@@ -83,8 +83,10 @@ export default class UserController extends Controller {
     public async createHandler(req: Request, res: Response): Promise<any> {
         try {
             const user = await this.db.users.create({
-                name: req.body.name,
-                password: req.body.password
+                login: req.body.login,
+                password: req.body.password,
+                email: req.body.email,
+                avatar: req.body.avatar
             });
             return res.status(201).send({
                 id: user.id,
@@ -120,7 +122,7 @@ export default class UserController extends Controller {
                     error_description: 'User not found'
                 }));
             }
-            user.name = req.body.name;
+            user.login = req.body.login;
             user.password = req.body.password;
             await user.save();
             return res.status(200).send({
@@ -157,8 +159,8 @@ export default class UserController extends Controller {
                     error_description: 'User not found'
                 }));
             }
-            if (req.body.name != null) {
-                user.name = req.body.name;
+            if (req.body.login != null) {
+                user.login = req.body.login;
             }
             if (req.body.password != null) {
                 user.password = req.body.password;

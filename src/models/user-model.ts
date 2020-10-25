@@ -6,8 +6,14 @@ import Attributes from './model';
  * User attributes interface.
  */
 export interface UserAttributes extends Attributes {
-    name: string;
+    login: string;
     password: string;
+    email: string;
+    avatar: string;
+    isAdmin: boolean;
+    lastLog: string; // ou number si unixtime?? idk
+    stars: string[];
+    darkmode: boolean;
 }
 
 /**
@@ -33,16 +39,40 @@ export default function createModel(container: ServiceContainer, mongoose: Mongo
  */
 function createUserSchema(container: ServiceContainer) {
     const schema = new Schema({
-        name: {
+        login: {
             type: Schema.Types.String,
-            required: [true, 'Name is required'],
-            unique: [true, 'Name already exists']
+            required: [true, 'Login is required'],
+            unique: [true, 'Login already exists']
         },
         password: {
             type: Schema.Types.String,
             required: [true, 'Password is required'],
             minlength: [8, 'Password is too small'],
             select: false
+        },
+        email: {
+            type: Schema.Types.String,
+            required: [true, 'Email is required'],
+            minlength: [8, 'Email is too small'],
+            unique: [true, 'Email already used']
+        },
+        avatar: {
+            type: Schema.Types.String
+        },
+        isAdmin: {
+            type: Schema.Types.Boolean,
+            default: false
+        },
+        lastLog: {
+            type: Schema.Types.Date,
+            default: Date.now
+        },
+        stars: {
+            type: Schema.Types.Array
+        },
+        darkmode: {
+            type: Schema.Types.Boolean,
+            default: false
         }
     }, {
         timestamps: true,
