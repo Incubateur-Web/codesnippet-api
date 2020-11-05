@@ -1,22 +1,22 @@
 import { Request, Response } from 'express';
-import { ProjectInstance } from '../models/project-model';
+import { FileInstance } from '../models/file-model';
 import ServiceContainer from '../services/service-container';
 import Controller, { Link } from './controller';
 
 /**
- * Projects controller class.
+ * Files controller class.
  * 
- * Root path : `/projects`
+ * Root path : `/files`
  */
-export default class ProjectController extends Controller {
+export default class FileController extends Controller {
 
     /**
-     * Creates a new projects controller.
+     * Creates a new files controller.
      * 
      * @param container Services container
      */
     public constructor(container: ServiceContainer) {
-        super(container, '/projects');
+        super(container, '/files');
         this.listHandler = this.listHandler.bind(this);
         this.getHandler = this.getHandler.bind(this);
         this.createHandler = this.createHandler.bind(this);
@@ -32,9 +32,9 @@ export default class ProjectController extends Controller {
     }
 
     /**
-     * Lists all projects.
+     * Lists all files.
      * 
-     * Path : `GET /projects`
+     * Path : `GET /files`
      * 
      * @param req Express request
      * @param res Express response
@@ -42,16 +42,16 @@ export default class ProjectController extends Controller {
      */
     public async listHandler(req: Request, res: Response): Promise<any> {
         try {
-            return res.status(200).send({ projects: await this.db.projects.find() });
+            return res.status(200).send({ files: await this.db.files.find() });
         } catch (err) {
             return res.status(500).send(this.container.errors.formatServerError());
         }
     }
 
     /**
-     * Gets a specific project.
+     * Gets a specific file.
      * 
-     * Path : `GET /projects/:id`
+     * Path : `GET /files/:id`
      * 
      * @param req Express request
      * @param res Express response
@@ -59,23 +59,23 @@ export default class ProjectController extends Controller {
      */
     public async getHandler(req: Request, res: Response): Promise<any> {
         try {
-            const project = await this.db.projects.findById(req.params.id).populate('applications');
-            if (project == null) {
+            const file = await this.db.files.findById(req.params.id).populate('applications');
+            if (file == null) {
                 return res.status(404).send(this.container.errors.formatErrors({
                     error: 'not_found',
-                    error_description: 'Project not found'
+                    error_description: 'File not found'
                 }));
             }
-            return res.status(200).send({ project });
+            return res.status(200).send({ file });
         } catch (err) {
             return res.status(500).send(this.container.errors.formatServerError());
         }
     }
 
     /**
-     * Creates a new project.
+     * Creates a new file.
      * 
-     * Path : `POST /projects`
+     * Path : `POST /files`
      * 
      * @param req Express request
      * @param res Express response
@@ -83,24 +83,18 @@ export default class ProjectController extends Controller {
      */
     public async createHandler(req: Request, res: Response): Promise<any> {
         try {
-            const project = await this.db.projects.create({
+            const file = await this.db.files.create({
               title: req.body.title,
-              description: req.body.description,
-              avatar: req.body.avatar,
-              idAWS: req.body.idAWS,
+              mimetype: req.body.mimetype,
+              extension: req.body.extension,
               idOwner: req.body.idOwner,
-              adminsList: req.body.adminList,
-              editorsList: req.body.editorsList,
-              readersList: req.body.readersList,
-              filesList: req.body.filesList,
-              foldersList: req.body.foldersList
             });
             return res.status(201).send({
-                id: project.id,
+                id: file.id,
                 links: [{
-                    rel: 'Gets the created project',
+                    rel: 'Gets the created file',
                     action: 'GET',
-                    href: `${req.protocol}://${req.get('host')}${this.rootUri}/${project.id}`
+                    href: `${req.protocol}://${req.get('host')}${this.rootUri}/${file.id}`
                 }] as Link[]
             });
         } catch (err) {
@@ -112,9 +106,9 @@ export default class ProjectController extends Controller {
     }
 
     /**
-     * Modifies an project.
+     * Modifies an file.
      * 
-     * Path : `PUT /projects/:id`
+     * Path : `PUT /files/:id`
      * 
      * @param req Express request
      * @param res Express response
@@ -122,31 +116,25 @@ export default class ProjectController extends Controller {
      */
     public async modifyHandler(req: Request, res: Response): Promise<any> {
         try {
-            const project = await this.db.projects.findById(req.params.id);
-            if (project == null) {
+            const file = await this.db.files.findById(req.params.id);
+            if (file == null) {
                 return res.status(404).send(this.container.errors.formatErrors({
                     error: 'not_found',
-                    error_description: 'Project not found'
+                    error_description: 'File not found'
                 }));
             }
-            project.title = req.body.title;
-            project.description = req.body.description;
-            project.avatar = req.body.avatar;
-            project.idAWS = req.body.idAWS;
-            project.idOwner = req.body.idOwner;
-            project.adminsList = req.body.adminList;
-            project.editorsList = req.body.editorsList;
-            project.readersList = req.body.readersList;
-            project.filesList = req.body.filesList;
-            project.foldersList = req.body.foldersList;
+            file.title = req.body.title;
+            file.mimeType = req.body.mimetype;
+            file.extension = req.body.extension;
+            file.idOwner = req.body.idOwner;
 
-            await project.save();
+            await file.save();
             return res.status(200).send({
-                id: project.id,
+                id: file.id,
                 links: [{
-                    rel: 'Gets the modified project',
+                    rel: 'Gets the modified file',
                     action: 'GET',
-                    href: `${req.protocol}://${req.get('host')}${this.rootUri}/${project.id}`
+                    href: `${req.protocol}://${req.get('host')}${this.rootUri}/${file.id}`
                 }] as Link[]
             });
         } catch (err) {
@@ -158,9 +146,9 @@ export default class ProjectController extends Controller {
     }
 
     /**
-     * Updates an project.
+     * Updates an file.
      * 
-     * Path : `PATCH /projects/:id`
+     * Path : `PATCH /files/:id`
      * 
      * @param req Express request
      * @param res Express response
@@ -168,27 +156,27 @@ export default class ProjectController extends Controller {
      */
     public async updateHandler(req: Request, res: Response): Promise<any> {
         try {
-            const project = await this.db.projects.findById(req.params.id);
-            if (project == null) {
+            const file = await this.db.files.findById(req.params.id);
+            if (file == null) {
                 return res.status(404).send(this.container.errors.formatErrors({
                     error: 'not_found',
-                    error_description: 'Project not found'
+                    error_description: 'File not found'
                 }));
             }
 
             for (const [key, value] of Object.entries(req.body)){
                 if (value != null) {
-                    project[key] = value;
+                    file[key] = value;
                 }
             }
 
-            await project.save();
+            await file.save();
             return res.status(200).send({
-                id: project.id,
+                id: file.id,
                 links: [{
-                    rel: 'Gets the updated project',
+                    rel: 'Gets the updated file',
                     action: 'GET',
-                    href: `${req.protocol}://${req.get('host')}${this.rootUri}/${project.id}`
+                    href: `${req.protocol}://${req.get('host')}${this.rootUri}/${file.id}`
                 }] as Link[]
             });
         } catch (err) {
@@ -200,9 +188,9 @@ export default class ProjectController extends Controller {
     }
 
     /**
-     * Deletes an project.
+     * Deletes an file.
      * 
-     * Path : `DELETE /projects/:id`
+     * Path : `DELETE /files/:id`
      * 
      * @param req Express request
      * @param res Express response
@@ -210,11 +198,11 @@ export default class ProjectController extends Controller {
      */
     public async deleteHandler(req: Request, res: Response): Promise<any> {
         try {
-            const project = await this.db.projects.findByIdAndDelete(req.params.id);
-            if (project == null) {
+            const file = await this.db.files.findByIdAndDelete(req.params.id);
+            if (file == null) {
                 return res.status(404).send(this.container.errors.formatErrors({
                     error: 'not_found',
-                    error_description: 'Project not found'
+                    error_description: 'File not found'
                 }));
             }
             return res.status(204).send();
