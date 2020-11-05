@@ -85,7 +85,7 @@ export default class FileController extends Controller {
         try {
             const file = await this.db.files.create({
               title: req.body.title,
-              mimetype: req.body.mimetype,
+              mimeType: req.body.mimeType,
               extension: req.body.extension,
               idOwner: req.body.idOwner,
             });
@@ -124,7 +124,7 @@ export default class FileController extends Controller {
                 }));
             }
             file.title = req.body.title;
-            file.mimeType = req.body.mimetype;
+            file.mimeType = req.body.mimeType;
             file.extension = req.body.extension;
             file.idOwner = req.body.idOwner;
 

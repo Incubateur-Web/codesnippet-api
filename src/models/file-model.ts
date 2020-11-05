@@ -42,7 +42,7 @@ function createFileSchema(container: ServiceContainer) {
         },
         mimeType: {
             type: Schema.Types.String,
-            required: [true, 'A mimetype is required'],
+            required: [true, 'A mimeType is required'],
         },
         extension: {
             type: Schema.Types.String,

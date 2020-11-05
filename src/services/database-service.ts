@@ -29,6 +29,7 @@ export default class DatabaseService extends Service {
         this.mongoose = this.createMongoose();
         this.users = createUserModel(container, this.mongoose);
         this.projects = createProjectModel(container, this.mongoose);
+        this.files = createFileModel(container, this.mongoose);
         this.refreshTokens = createRefreshTokenModel(container, this.mongoose);
     }
 
