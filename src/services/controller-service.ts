@@ -3,6 +3,7 @@ import Controller from '../controllers/controller';
 import UserController from '../controllers/user-controller';
 import ProjectController from '../controllers/project-controller';
 import FileController from '../controllers/file-controller';
+import FolderController from '../controllers/folder-controller';
 import Service from './service';
 import ServiceContainer from './service-container';
 
@@ -27,7 +28,8 @@ export default class ControllerService extends Service {
         this.controllers = [
             new UserController(container),
             new ProjectController(container),
-            new FileController(container)
+            new FileController(container),
+            new FolderController(container),
         ];
     }
 
