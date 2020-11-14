@@ -100,6 +100,7 @@ export default class UserController extends Controller {
             if (err.name === 'ValidationError') {
                 return res.status(400).send(this.container.errors.formatErrors(...this.container.errors.translateMongooseValidationError(err)));
             }
+            console.log(err);
             return res.status(500).send(this.container.errors.formatServerError());
         }
     }

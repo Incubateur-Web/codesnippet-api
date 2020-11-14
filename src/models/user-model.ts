@@ -1,6 +1,7 @@
 import { Document, Model, Mongoose, Schema } from 'mongoose';
 import ServiceContainer from '../services/service-container';
 import Attributes from './model';
+import bcrypt from 'bcryptjs';
 
 /**
  * User attributes interface.
@@ -19,7 +20,9 @@ export interface UserAttributes extends Attributes {
 /**
  * User instance interface.
  */
-export interface UserInstance extends UserAttributes, Document {}
+export interface UserInstance extends UserAttributes, Document {
+    comparePassword(candidatePassword: string): Promise<boolean>;
+}
 
 /**
  * Creates the user model.
@@ -84,12 +87,18 @@ function createUserSchema(container: ServiceContainer) {
     schema.pre('save', async function(this: UserInstance, next) {
         if (this.password != null) { // Validates the password only if filled
             try {
-                this.password = await container.crypto.hash(this.password, parseInt(process.env.HASH_SALT, 10));
+                // this.password =  bcrypt.hashSync(this.password, parseInt(process.env.HASH_SALT, 10));
+                this.password =  bcrypt.hashSync(this.password);
                 return next();
             } catch (err) {
                 return next(err);
             }
         }
+    });
+
+    schema.method('comparePassword', function (candidatePassword: string, userPassword : string){
+        if (bcrypt.compareSync(candidatePassword, userPassword)) return true;
+        return false;
     });
 
     return schema;
