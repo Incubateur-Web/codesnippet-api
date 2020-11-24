@@ -87,8 +87,7 @@ function createUserSchema(container: ServiceContainer) {
     schema.pre('save', async function(this: UserInstance, next) {
         if (this.password != null) { // Validates the password only if filled
             try {
-                // this.password =  bcrypt.hashSync(this.password, parseInt(process.env.HASH_SALT, 10));
-                this.password =  bcrypt.hashSync(this.password);
+                this.password =  bcrypt.hashSync(this.password, parseInt(process.env.HASH_SALT, 10));
                 return next();
             } catch (err) {
                 return next(err);
