@@ -74,7 +74,7 @@ export default class AuthController extends Controller  {
                       { expiresIn: "1h" } // Date d'expiration du token, au delà duquel il faudra se reco
                     ).then( token => {
                       // On envoit le token au client
-                      return res.status(200).header('Authorization', token).send({ token });
+                      return res.status(200).header('Authorization', token).send({ 'token' : token, 'username' : user.login });
                     }); 
                     // Pas de gestion d'erreur si la fonction renvoit rien ? 
                   }
