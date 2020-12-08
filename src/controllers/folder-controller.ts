@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { FolderInstance } from '../models/folder-model';
 import ServiceContainer from '../services/service-container';
 import Controller, { Link } from './controller';
 
@@ -17,12 +16,6 @@ export default class FolderController extends Controller {
      */
     public constructor(container: ServiceContainer) {
         super(container, '/folders');
-        this.listHandler = this.listHandler.bind(this);
-        this.getHandler = this.getHandler.bind(this);
-        this.createHandler = this.createHandler.bind(this);
-        this.modifyHandler = this.modifyHandler.bind(this);
-        this.updateHandler = this.updateHandler.bind(this);
-        this.deleteHandler = this.deleteHandler.bind(this);
         this.registerEndpoint({ method: 'GET', uri: '/', handlers: this.listHandler });
         this.registerEndpoint({ method: 'GET', uri: '/:id', handlers: this.getHandler });
         this.registerEndpoint({ method: 'POST', uri: '/', handlers: this.createHandler });
@@ -40,7 +33,7 @@ export default class FolderController extends Controller {
      * @param res Express response
      * @async
      */
-    public async listHandler(req: Request, res: Response): Promise<any> {
+    public async listHandler(req: Request, res: Response): Promise<Response> {
         try {
             return res.status(200).send({ folders: await this.db.folders.find() });
         } catch (err) {
@@ -57,7 +50,7 @@ export default class FolderController extends Controller {
      * @param res Express response
      * @async
      */
-    public async getHandler(req: Request, res: Response): Promise<any> {
+    public async getHandler(req: Request, res: Response): Promise<Response> {
         try {
             const folder = await this.db.folders.findById(req.params.id).populate('applications');
             if (folder == null) {
@@ -81,7 +74,7 @@ export default class FolderController extends Controller {
      * @param res Express response
      * @async
      */
-    public async createHandler(req: Request, res: Response): Promise<any> {
+    public async createHandler(req: Request, res: Response): Promise<Response> {
         try {
             const folder = await this.db.folders.create({
               title: req.body.title,
@@ -112,7 +105,7 @@ export default class FolderController extends Controller {
      * @param res Express response
      * @async
      */
-    public async modifyHandler(req: Request, res: Response): Promise<any> {
+    public async modifyHandler(req: Request, res: Response): Promise<Response> {
         try {
             const folder = await this.db.folders.findById(req.params.id);
             if (folder == null) {
@@ -150,7 +143,7 @@ export default class FolderController extends Controller {
      * @param res Express response
      * @async
      */
-    public async updateHandler(req: Request, res: Response): Promise<any> {
+    public async updateHandler(req: Request, res: Response): Promise<Response> {
         try {
             const folder = await this.db.folders.findById(req.params.id);
             if (folder == null) {
@@ -192,7 +185,7 @@ export default class FolderController extends Controller {
      * @param res Express response
      * @async
      */
-    public async deleteHandler(req: Request, res: Response): Promise<any> {
+    public async deleteHandler(req: Request, res: Response): Promise<Response> {
         try {
             const folder = await this.db.folders.findByIdAndDelete(req.params.id);
             if (folder == null) {

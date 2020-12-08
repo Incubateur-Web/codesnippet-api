@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { ProjectInstance } from '../models/project-model';
 import ServiceContainer from '../services/service-container';
 import Controller, { Link } from './controller';
 
@@ -17,12 +16,6 @@ export default class ProjectController extends Controller {
      */
     public constructor(container: ServiceContainer) {
         super(container, '/projects');
-        this.listHandler = this.listHandler.bind(this);
-        this.getHandler = this.getHandler.bind(this);
-        this.createHandler = this.createHandler.bind(this);
-        this.modifyHandler = this.modifyHandler.bind(this);
-        this.updateHandler = this.updateHandler.bind(this);
-        this.deleteHandler = this.deleteHandler.bind(this);
         this.registerEndpoint({ method: 'GET', uri: '/', handlers: this.listHandler });
         this.registerEndpoint({ method: 'GET', uri: '/:id', handlers: this.getHandler });
         this.registerEndpoint({ method: 'POST', uri: '/', handlers: this.createHandler });
@@ -40,7 +33,7 @@ export default class ProjectController extends Controller {
      * @param res Express response
      * @async
      */
-    public async listHandler(req: Request, res: Response): Promise<any> {
+    public async listHandler(req: Request, res: Response): Promise<Response> {
         try {
             return res.status(200).send({ projects: await this.db.projects.find() });
         } catch (err) {
@@ -57,7 +50,7 @@ export default class ProjectController extends Controller {
      * @param res Express response
      * @async
      */
-    public async getHandler(req: Request, res: Response): Promise<any> {
+    public async getHandler(req: Request, res: Response): Promise<Response> {
         try {
             const project = await this.db.projects.findById(req.params.id).populate('applications');
             if (project == null) {
@@ -81,7 +74,7 @@ export default class ProjectController extends Controller {
      * @param res Express response
      * @async
      */
-    public async createHandler(req: Request, res: Response): Promise<any> {
+    public async createHandler(req: Request, res: Response): Promise<Response> {
         try {
             const project = await this.db.projects.create({
               title: req.body.title,
@@ -120,7 +113,7 @@ export default class ProjectController extends Controller {
      * @param res Express response
      * @async
      */
-    public async modifyHandler(req: Request, res: Response): Promise<any> {
+    public async modifyHandler(req: Request, res: Response): Promise<Response> {
         try {
             const project = await this.db.projects.findById(req.params.id);
             if (project == null) {
@@ -166,7 +159,7 @@ export default class ProjectController extends Controller {
      * @param res Express response
      * @async
      */
-    public async updateHandler(req: Request, res: Response): Promise<any> {
+    public async updateHandler(req: Request, res: Response): Promise<Response> {
         try {
             const project = await this.db.projects.findById(req.params.id);
             if (project == null) {
@@ -208,7 +201,7 @@ export default class ProjectController extends Controller {
      * @param res Express response
      * @async
      */
-    public async deleteHandler(req: Request, res: Response): Promise<any> {
+    public async deleteHandler(req: Request, res: Response): Promise<Response> {
         try {
             const project = await this.db.projects.findByIdAndDelete(req.params.id);
             if (project == null) {

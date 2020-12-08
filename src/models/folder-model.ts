@@ -6,7 +6,7 @@ import Attributes from './model';
  * Folder attributes interface.
  */
 export interface FolderAttributes extends Attributes {
-    [key: string]: string | Date | number | string[] | any;
+    [key: string]: string | Date | number | string[] | unknown;
     title: string;
     filesList: string[]
 }
@@ -23,16 +23,15 @@ export interface FolderInstance extends FolderAttributes, Document {}
  * @param mongoose Mongoose instance
  */
 export default function createModel(container: ServiceContainer, mongoose: Mongoose): Model<FolderInstance> {
-    return mongoose.model('Folder', createFolderSchema(container), 'folders');
+    return mongoose.model('Folder', createFolderSchema(), 'folders');
 }
 
 /**
  * Creates the Folder schema.
  * 
- * @param container Services container
  * @returns Folder schema
  */
-function createFolderSchema(container: ServiceContainer) {
+function createFolderSchema() {
     const schema = new Schema({
         title: {
             type: Schema.Types.String,
