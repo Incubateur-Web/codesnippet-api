@@ -19,12 +19,6 @@ export default class UserController extends Controller {
      */
     public constructor(container: ServiceContainer) {
         super(container, '/users');
-        this.listHandler = this.listHandler.bind(this);
-        this.getHandler = this.getHandler.bind(this);
-        this.createHandler = this.createHandler.bind(this);
-        this.modifyHandler = this.modifyHandler.bind(this);
-        this.updateHandler = this.updateHandler.bind(this);
-        this.deleteHandler = this.deleteHandler.bind(this);
         this.registerEndpoint({ method: 'GET', uri: '/', handlers: this.listHandler });
         this.registerEndpoint({ method: 'GET', uri: '/:id', handlers: this.getHandler });
         this.registerEndpoint({ method: 'POST', uri: '/', handlers: this.createHandler });
@@ -42,7 +36,7 @@ export default class UserController extends Controller {
      * @param res Express response
      * @async
      */
-    public async listHandler(req: Request, res: Response): Promise<any> {
+    public async listHandler(req: Request, res: Response): Promise<Response> {
         try {
             return res.status(200).send({ users: await this.db.users.find() });
         } catch (err) {
@@ -59,7 +53,7 @@ export default class UserController extends Controller {
      * @param res Express response
      * @async
      */
-    public async getHandler(req: Request, res: Response): Promise<any> {
+    public async getHandler(req: Request, res: Response): Promise<Response> {
         try {
             const user = await this.db.users.findById(req.params.id).populate('applications');
             if (user == null) {
@@ -160,7 +154,7 @@ export default class UserController extends Controller {
      * @param res Express response
      * @async
      */
-    public async modifyHandler(req: Request, res: Response): Promise<any> {
+    public async modifyHandler(req: Request, res: Response): Promise<Response> {
         try {
             const user = await this.db.users.findById(req.params.id);
             if (user == null) {
@@ -197,7 +191,7 @@ export default class UserController extends Controller {
      * @param res Express response
      * @async
      */
-    public async updateHandler(req: Request, res: Response): Promise<any> {
+    public async updateHandler(req: Request, res: Response): Promise<Response> {
         try {
             const user = await this.db.users.findById(req.params.id);
             if (user == null) {
@@ -238,7 +232,7 @@ export default class UserController extends Controller {
      * @param res Express response
      * @async
      */
-    public async deleteHandler(req: Request, res: Response): Promise<any> {
+    public async deleteHandler(req: Request, res: Response): Promise<Response> {
         try {
             const user = await this.db.users.findByIdAndDelete(req.params.id);
             if (user == null) {
