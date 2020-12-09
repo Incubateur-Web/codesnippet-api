@@ -17,3 +17,4 @@ logs/
 # Visual Studio Code
 .vscode/*
 !.vscode/launch.json
+.favorites.json

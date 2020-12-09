@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
+import { TokenExpiredError } from 'jsonwebtoken';
 import ServiceContainer from '../services/service-container';
 import Controller, { Link } from './controller';
+import jwt = require('jsonwebtoken');
+import TokenService, { TokenData } from '../services/token-service';
 
 /**
  * Users controller class.
@@ -74,26 +77,72 @@ export default class UserController extends Controller {
      * @param res Express response
      * @async
      */
-    public async createHandler(req: Request, res: Response): Promise<Response> {
-        try {
-            const user = await this.db.users.create({
-                name: req.body.name,
-                password: req.body.password
-            });
-            return res.status(201).send({
-                id: user.id,
-                links: [{
-                    rel: 'Gets the created user',
-                    action: 'GET',
-                    href: `${req.protocol}://${req.get('host')}${this.rootUri}/${user.id}`
-                }] as Link[]
-            });
-        } catch (err) {
-            if (err.name === 'ValidationError') {
-                return res.status(400).send(this.container.errors.formatErrors(...this.container.errors.translateMongooseValidationError(err)));
-            }
-            return res.status(500).send(this.container.errors.formatServerError());
+    public async createHandler(req: Request, res: Response): Promise<any> {
+
+        // On vérifie qu'un login (pseudo ou mail) et qu'un mdp sont renseignés
+        let { login, password, email } = req.body;
+        if (!login || !email || !password) {
+          res.status(400).send();
         }
+    
+        // Si on récupère les infos nécessaires à la connexion, on initie une query
+    
+        let tokenService = this.container.tokens;
+
+        this.db.users.findOne( {$or: [
+            {login: login},
+            {email: email}
+        ]}).exec(async (err, user) =>{
+            if( err ){
+                return res.status(404).send({
+                    error: 'not_found',
+                    error_description: err
+                });
+            }
+                // Pas d'utilisateur existant : on peut créer un compte
+            if (!user) {
+                try {
+                    const user = await this.db.users.create({
+                        login: req.body.login,
+                        password: req.body.password,
+                        email: req.body.email,
+                        avatar: req.body.avatar
+                    });
+                    // Data à stocker dans le token
+                    const data = { 
+                        clientId : user._id, // Identifiant de l'utilisateur
+                        username : user.login // Username de l'utilisateur (je pense qu'on pourrait s'en passer)
+                    };
+                    // Création du token 
+                    tokenService.encode(
+                        data, 
+                        process.env.TOKEN_SECRET, // Clé secrete pour encode le token : TOKEN_SECRET == doublon d'une autre variable env ? 
+                        { expiresIn: "1h" } // Date d'expiration du token, au delà duquel il faudra se reco
+                    ).then( token => {
+                        // On envoit le token au client
+                        return res.status(201).header('Authorization', token).send({
+                            id: user.id,
+                            username: user.login,
+                            token: token,
+                        });
+                    }); 
+                    
+                } catch (err) {
+                    if (err.name === 'ValidationError') {
+                        return res.status(400).send(this.container.errors.formatErrors(...this.container.errors.translateMongooseValidationError(err)));
+                    }
+                    console.log(err);
+                    return res.status(500).send(this.container.errors.formatServerError());
+                }
+            }
+            else {
+                return res.status(404).send({
+                    error: 'not_found',
+                    error_description: 'User found with those credentials'
+                });
+            }
+        });
+        
     }
 
     /**
@@ -114,7 +163,7 @@ export default class UserController extends Controller {
                     error_description: 'User not found'
                 }));
             }
-            user.name = req.body.name;
+            user.login = req.body.login;
             user.password = req.body.password;
             await user.save();
             return res.status(200).send({
@@ -151,8 +200,8 @@ export default class UserController extends Controller {
                     error_description: 'User not found'
                 }));
             }
-            if (req.body.name != null) {
-                user.name = req.body.name;
+            if (req.body.login != null) {
+                user.login = req.body.login;
             }
             if (req.body.password != null) {
                 user.password = req.body.password;
