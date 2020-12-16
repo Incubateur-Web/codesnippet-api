@@ -80,14 +80,14 @@ export default class UserController extends Controller {
     public async createHandler(req: Request, res: Response): Promise<any> {
 
         // On vérifie qu'un login (pseudo ou mail) et qu'un mdp sont renseignés
-        let { login, password, email } = req.body;
+        const { login, password, email } = req.body;
         if (!login || !email || !password) {
           res.status(400).send();
         }
     
         // Si on récupère les infos nécessaires à la connexion, on initie une query
     
-        let tokenService = this.container.tokens;
+        const tokenService = this.container.tokens;
 
         this.db.users.findOne( {$or: [
             {login: login},
