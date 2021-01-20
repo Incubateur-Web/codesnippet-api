@@ -19,7 +19,7 @@ export default class UserController extends Controller {
      */
     public constructor(container: ServiceContainer) {
         super(container, '/users');
-        this.registerEndpoint({ method: 'GET', uri: '/', handlers: this.listHandler });
+        this.registerEndpoint({ method: 'GET', uri: '/', handlers: [this.container.auth.authenticateHandler, this.container.auth.isAuthenticatedHandler, this.listHandler] });
         this.registerEndpoint({ method: 'GET', uri: '/:id', handlers: this.getHandler });
         this.registerEndpoint({ method: 'POST', uri: '/', handlers: this.createHandler });
         this.registerEndpoint({ method: 'PUT', uri: '/:id', handlers: this.modifyHandler });
@@ -37,6 +37,8 @@ export default class UserController extends Controller {
      * @async
      */
     public async listHandler(req: Request, res: Response): Promise<Response> {
+
+        // Accès à res.locals.authUser -> qui donne l'user connecté 
         try {
             return res.status(200).send({ users: await this.db.users.find() });
         } catch (err) {
@@ -84,9 +86,9 @@ export default class UserController extends Controller {
         if (!login || !email || !password) {
           res.status(400).send();
         }
-    
+
         // Si on récupère les infos nécessaires à la connexion, on initie une query
-    
+
         const tokenService = this.container.tokens;
 
         this.db.users.findOne( {$or: [
@@ -109,15 +111,14 @@ export default class UserController extends Controller {
                         avatar: req.body.avatar
                     });
                     // Data à stocker dans le token
-                    const data = { 
-                        clientId : user._id, // Identifiant de l'utilisateur
-                        username : user.login // Username de l'utilisateur (je pense qu'on pourrait s'en passer)
+                    const data = {
+                        userId : user.id, // Identifiant de l'utilisateur
                     };
                     // Création du token 
                     tokenService.encode(
-                        data, 
+                        data,
                         process.env.TOKEN_SECRET, // Clé secrete pour encode le token : TOKEN_SECRET == doublon d'une autre variable env ? 
-                        { expiresIn: "1h" } // Date d'expiration du token, au delà duquel il faudra se reco
+                        { expiresIn: '1h' } // Date d'expiration du token, au delà duquel il faudra se reco
                     ).then( token => {
                         // On envoit le token au client
                         return res.status(201).header('Authorization', token).send({
@@ -125,8 +126,8 @@ export default class UserController extends Controller {
                             username: user.login,
                             token: token,
                         });
-                    }); 
-                    
+                    });
+
                 } catch (err) {
                     if (err.name === 'ValidationError') {
                         return res.status(400).send(this.container.errors.formatErrors(...this.container.errors.translateMongooseValidationError(err)));
@@ -142,7 +143,7 @@ export default class UserController extends Controller {
                 });
             }
         });
-        
+
     }
 
     /**
