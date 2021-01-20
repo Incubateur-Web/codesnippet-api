@@ -1,5 +1,4 @@
 import { Model, Mongoose } from 'mongoose';
-import createRefreshTokenModel, { RefreshTokenInstance } from '../models/refresh-token-model';
 import createUserModel, { UserInstance } from '../models/user-model';
 import createProjectModel, { ProjectInstance } from '../models/project-model';
 import createFileModel, { FileInstance } from '../models/file-model';
@@ -18,7 +17,6 @@ export default class DatabaseService extends Service {
     public readonly projects: Model<ProjectInstance>;
     public readonly files: Model<FileInstance>;
     public readonly folders: Model<FolderInstance>;
-    public readonly refreshTokens: Model<RefreshTokenInstance>;
     private readonly mongoose: Mongoose;
 
     /**
@@ -33,7 +31,6 @@ export default class DatabaseService extends Service {
         this.projects = createProjectModel(container, this.mongoose);
         this.files = createFileModel(container, this.mongoose);
         this.folders = createFolderModel(container, this.mongoose);
-        this.refreshTokens = createRefreshTokenModel(container, this.mongoose);
     }
 
     /**

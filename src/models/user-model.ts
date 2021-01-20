@@ -15,6 +15,7 @@ export interface UserAttributes extends Attributes {
     lastLog: string; // ou number si unixtime?? idk
     stars: string[];
     darkmode: boolean;
+    refreshToken?: string;
 }
 
 /**
@@ -76,6 +77,11 @@ function createUserSchema(container: ServiceContainer) {
         darkmode: {
             type: Schema.Types.Boolean,
             default: false
+        },
+        refreshToken: {
+            type: Schema.Types.String,
+            default: null,
+            select: false
         }
     }, {
         timestamps: true,
