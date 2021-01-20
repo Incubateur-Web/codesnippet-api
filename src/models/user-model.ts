@@ -15,6 +15,7 @@ export interface UserAttributes extends Attributes {
     lastLog: string; // ou number si unixtime?? idk
     stars: string[];
     darkmode: boolean;
+    refreshToken?: string;
 }
 
 /**
@@ -76,6 +77,11 @@ function createUserSchema(container: ServiceContainer) {
         darkmode: {
             type: Schema.Types.Boolean,
             default: false
+        },
+        refreshToken: {
+            type: Schema.Types.String,
+            default: null,
+            select: false
         }
     }, {
         timestamps: true,
@@ -87,7 +93,7 @@ function createUserSchema(container: ServiceContainer) {
     schema.pre('save', async function(this: UserInstance, next) {
         if (this.password != null) { // Validates the password only if filled
             try {
-                this.password =  bcrypt.hashSync(this.password, parseInt(process.env.HASH_SALT, 10));
+                this.password = await container.crypto.hash(this.password, parseInt(process.env.HASH_SALT, 10));
                 return next();
             } catch (err) {
                 return next(err);
@@ -95,8 +101,10 @@ function createUserSchema(container: ServiceContainer) {
         }
     });
 
-    schema.method('comparePassword', function (candidatePassword: string, userPassword : string){
-        if (bcrypt.compareSync(candidatePassword, userPassword)) return true;
+    schema.method('comparePassword', async function (candidatePassword: string, userPassword : string){
+        const kk = await container.crypto.compare(candidatePassword, userPassword)
+        console.log(kk)
+        if (kk) return true;
         return false;
     });
 
