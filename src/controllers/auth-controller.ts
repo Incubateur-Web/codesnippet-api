@@ -3,7 +3,6 @@ import ServiceContainer from '../services/service-container';
 import Controller, { Link } from './controller';
 import jwt = require('jsonwebtoken');
 import TokenService, { AccessTokenData, RefreshTokenData, TokenData } from '../services/token-service';
-
 /**
  * Authentification class.
  * 
@@ -50,32 +49,35 @@ export default class AuthController extends Controller {
           // Si un utilisateur est trouvé dans la BDD
           else {
             // On compare le mdp stocké et celui envoyé par le client
-            const isMatch = user.schema.methods.comparePassword(password, user.password);
-            if (!isMatch) {
-              // Si les mdps ne correspondent pas
-              return res.status(404).send({
-                error: 'wrong_password',
-                error_description: 'Wrong password'
-              });
-            }
-            // Si les mdps correspondent
-            else if (isMatch) {
-              // Data à stocker dans le token
-              const data = {// Identifiant de l'utilisateur
-                userId: user.id // Username de l'utilisateur (je pense qu'on pourrait s'en passer)
-              };
-              // Création du token 
-              tokenService.encode(
-                data,
-                process.env.TOKEN_SECRET, // Clé secrete pour encode le token : TOKEN_SECRET == doublon d'une autre variable env ? 
-                { expiresIn: '1h' } // Date d'expiration du token, au delà duquel il faudra se reco
-              ).then(token => {
-                // On envoit le token au client
-                return res.status(200).header('Authorization', token).send({ 'token': token, 'username': user.login });
-              });
-              // Pas de gestion d'erreur si la fonction renvoit rien ? 
-            }
+            user.schema.methods.comparePassword(password, user.password).then( (isMatch: boolean) => {
+              console.log(password, user.password);
+              if (!isMatch) {
+                // Si les mdps ne correspondent pas
+                return res.status(404).send({
+                  error: 'wrong_password',
+                  error_description: 'Wrong password'
+                });
+              }
+              // Si les mdps correspondent
+              else if (isMatch) {
+                // Data à stocker dans le token
+                const data = {// Identifiant de l'utilisateur
+                  userId: user.id // Username de l'utilisateur (je pense qu'on pourrait s'en passer)
+                };
 
+                // Création du token 
+                // tokenService.encode(
+                //   data,
+                //   process.env.ACCESS_TOKEN_KEY, // Clé secrete pour encode le token : ACCESS_TOKEN_KEY == doublon d'une autre variable env ? 
+                //   { expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRATION, 10) } // Date d'expiration du token, au delà duquel il faudra se reco
+                // ).then(token => {
+                //   // On envoit le token au client
+                //   return res.status(200).header('Authorization', token).send({ 'token': token, 'username': user.login });
+                // });
+
+                return res.status(200).json(data);
+              }
+            });
           }
         });
       }
@@ -137,6 +139,7 @@ export default class AuthController extends Controller {
       await user.save();
       return res.status(200).json({ access_token: accessToken, refresh_token: refreshToken });
     } catch (err) {
+      console.log(err);
       return res.status(500).json(this.container.errors.formatServerError());
     }
   }
@@ -149,7 +152,7 @@ export default class AuthController extends Controller {
     if (!token) return res.status(401).send('Access Denied');
 
     try {
-      tokenService.decode(token, process.env.TOKEN_SECRET).then(verified => {
+      tokenService.decode(token, process.env.ACCESS_TOKEN_KEY).then(verified => {
         return res.status(200).send({ verified });
       });
     } catch (err) {

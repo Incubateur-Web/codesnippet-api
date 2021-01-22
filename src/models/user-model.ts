@@ -102,10 +102,9 @@ function createUserSchema(container: ServiceContainer) {
     });
 
     schema.method('comparePassword', async function (candidatePassword: string, userPassword : string){
-        const kk = await container.crypto.compare(candidatePassword, userPassword)
-        console.log(kk)
-        if (kk) return true;
-        return false;
+        const passMatch = await container.crypto.compare(candidatePassword, userPassword);
+        if (passMatch) { return true; }    
+        else { return false; }
     });
 
     return schema;
