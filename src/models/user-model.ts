@@ -51,13 +51,13 @@ function createUserSchema(container: ServiceContainer) {
         password: {
             type: Schema.Types.String,
             required: [true, 'Password is required'],
-            minlength: [8, 'Password is too small'],
+            minlength: [8, 'Password is too small: it must be at least 8 characters'],
             select: false
         },
         email: {
             type: Schema.Types.String,
             required: [true, 'Email is required'],
-            minlength: [8, 'Email is too small'],
+            minlength: [8, 'Email is too small: it must be at least 8 characters'],
             unique: [true, 'Email already used']
         },
         avatar: {

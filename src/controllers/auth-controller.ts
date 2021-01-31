@@ -63,7 +63,7 @@ export default class AuthController extends Controller {
           return res.status(404).json(
             this.container.errors.formatErrors({
               error: 'not_found',
-              error_description: 'User not found with this email',
+              error_description: 'User not found with those credentials',
             })
           );
         }
@@ -195,7 +195,7 @@ export default class AuthController extends Controller {
         return res.status(404).json(
           this.container.errors.formatErrors({
             error: 'not_found',
-            error_description: 'User not found with this email',
+            error_description: 'User not found with those credentials',
           })
         );
       }
