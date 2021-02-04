@@ -84,7 +84,10 @@ export default class UserController extends Controller {
         // On vérifie qu'un login (pseudo ou mail) et qu'un mdp sont renseignés
         const { login, password, email } = req.body;
         if (!login || !email || !password) {
-          res.status(400).send();
+            res.status(400).send({
+                error: 'not_found',
+                error_description: 'Missing informations'
+            });
         }
 
         // Si on récupère les infos nécessaires à la connexion, on initie une query
@@ -101,7 +104,7 @@ export default class UserController extends Controller {
                     error_description: err
                 });
             }
-                // Pas d'utilisateur existant : on peut créer un compte
+            // Pas d'utilisateur existant : on peut créer un compte
             if (!user) {
                 try {
                     const user = await this.db.users.create({
@@ -117,8 +120,8 @@ export default class UserController extends Controller {
                     // Création du token 
                     tokenService.encode(
                         data,
-                        process.env.TOKEN_SECRET, // Clé secrete pour encode le token : TOKEN_SECRET == doublon d'une autre variable env ? 
-                        { expiresIn: '1h' } // Date d'expiration du token, au delà duquel il faudra se reco
+                        process.env.ACCESS_TOKEN_KEY, // Clé secrete pour encode le token
+                        { expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRATION, 10)} // Date d'expiration du token, au delà duquel il faudra se reco
                     ).then( token => {
                         // On envoit le token au client
                         return res.status(201).header('Authorization', token).send({
@@ -132,14 +135,14 @@ export default class UserController extends Controller {
                     if (err.name === 'ValidationError') {
                         return res.status(400).send(this.container.errors.formatErrors(...this.container.errors.translateMongooseValidationError(err)));
                     }
-                    console.log(err);
                     return res.status(500).send(this.container.errors.formatServerError());
                 }
             }
+            // Si utilisateur existe avec le mail ou l'username
             else {
-                return res.status(404).send({
+                return res.status(401).send({
                     error: 'not_found',
-                    error_description: 'User found with those credentials'
+                    error_description: 'User found with those credentials. Please try again with another username or email.'
                 });
             }
         });
@@ -159,7 +162,7 @@ export default class UserController extends Controller {
         try {
             const user = await this.db.users.findById(req.params.id);
             if (user == null) {
-                return res.status(404).send(this.container.errors.formatErrors({
+                return res.status(401).send(this.container.errors.formatErrors({
                     error: 'not_found',
                     error_description: 'User not found'
                 }));

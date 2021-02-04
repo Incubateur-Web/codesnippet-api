@@ -63,7 +63,7 @@ export default class AuthController extends Controller {
           return res.status(404).json(
             this.container.errors.formatErrors({
               error: 'not_found',
-              error_description: 'User not found with this email',
+              error_description: 'User not found with those credentials',
             })
           );
         }
@@ -195,7 +195,7 @@ export default class AuthController extends Controller {
         return res.status(404).json(
           this.container.errors.formatErrors({
             error: 'not_found',
-            error_description: 'User not found with this email',
+            error_description: 'User not found with those credentials',
           })
         );
       }
@@ -230,6 +230,7 @@ export default class AuthController extends Controller {
         .status(200)
         .json({ access_token: accessToken, refresh_token: refreshToken });
     } catch (err) {
+      console.log(err);
       return res.status(500).json(this.container.errors.formatServerError());
     }
   }
@@ -241,7 +242,7 @@ export default class AuthController extends Controller {
     if (!token) return res.status(401).send('Access Denied');
 
     try {
-      tokenService.decode(token, process.env.TOKEN_SECRET).then((verified) => {
+      tokenService.decode(token, process.env.ACCESS_TOKEN_KEY).then(verified => {
         return res.status(200).send({ verified });
       });
     } catch (err) {
