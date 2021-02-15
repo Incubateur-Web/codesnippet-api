@@ -34,7 +34,7 @@ export default class ExpressService extends Service {
      * @param port Listening port
      * @async
      */
-    public async start(port: number = 80): Promise<void> {
+    public async start(port: number = 3000): Promise<void> {
         return await new Promise<void>((resolve, reject) => {
             if (!this.srv || !this.srv.listening) {
                 this.srv = this.app.listen(port, err => {
