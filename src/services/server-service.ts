@@ -23,10 +23,10 @@ export default class ServerService extends Service {
      * @async
      */
     public async start(): Promise<void> {
-        const { API_PORT, DB_HOST, DB_PORT, DB_NAME } = process.env;
+        const { PORT, DB_HOST, DB_PORT, DB_NAME } = process.env;
 
         // Starting server
-        await this.container.express.start(API_PORT as unknown as number);
+        await this.container.express.start(PORT as unknown as number);
         this.container.log.info('Express started');
 
         // Connecting to database
