@@ -62,7 +62,10 @@ export default class WebsocketService extends Service {
           this.container.log.info(`Websocket disconnected : ${socket.handshake.address}`);
       });
 
-      // Websocket logic here
+      // Websocket message transmission
+      socket.on('message', (msg) => {
+        console.log('message: ' + msg);
+      });
     });
   }
 }
