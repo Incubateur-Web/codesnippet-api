@@ -21,6 +21,7 @@ export default class UserController extends Controller {
         super(container, '/users');
         this.registerEndpoint({ method: 'GET', uri: '/', handlers: [this.container.auth.authenticateHandler, this.container.auth.isAuthenticatedHandler, this.listHandler] });
         this.registerEndpoint({ method: 'GET', uri: '/:id', handlers: this.getHandler });
+        this.registerEndpoint({ method: 'GET', uri: '/search/:query', handlers: this.searchHandler });
         this.registerEndpoint({ method: 'POST', uri: '/', handlers: this.createHandler });
         this.registerEndpoint({ method: 'PUT', uri: '/:id', handlers: this.modifyHandler });
         this.registerEndpoint({ method: 'PATCH', uri: '/:id', handlers: this.updateHandler });
@@ -65,6 +66,30 @@ export default class UserController extends Controller {
                 }));
             }
             return res.status(200).send({ user });
+        } catch (err) {
+            return res.status(500).send(this.container.errors.formatServerError());
+        }
+    }
+
+    /**
+     * Gets some users by search.
+     * 
+     * Path : `GET /users/search/:query`
+     * 
+     * @param req Express request
+     * @param res Express response
+     * @async
+     */
+     public async searchHandler(req: Request, res: Response): Promise<Response> {
+        try {
+            const users = await this.db.users.find( { login : { $regex:".*thenti.*"} }).populate('applications');
+            if (users == null) {
+                return res.status(404).send(this.container.errors.formatErrors({
+                    error: 'not_found',
+                    error_description: '
+                }));Users not found'
+            }
+            return res.status(200).send({ users });
         } catch (err) {
             return res.status(500).send(this.container.errors.formatServerError());
         }
