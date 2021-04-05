@@ -31,6 +31,7 @@ export default class ServerService extends Service {
 
         // Connecting to database
         await this.container.db.connect(DB_HOST, DB_PORT, DB_NAME);
+        this.container.log.info(`API listening on port ${PORT}`);
         this.container.log.info(`Connected to database ${DB_HOST}:${DB_PORT}/${DB_NAME}`);
 
         // Starting websocket server

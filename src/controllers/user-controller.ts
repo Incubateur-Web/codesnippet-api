@@ -82,12 +82,10 @@ export default class UserController extends Controller {
      */
      public async searchHandler(req: Request, res: Response): Promise<Response> {
         try {
-            const users = await this.db.users.find( { login : { $regex:".*thenti.*"} }).populate('applications');
+            const regex_search = `.*${req.params.search}.*`;
+            const users = await this.db.users.find( { login : { $regex: regex_search} }, { isAdmin: 1 } ).populate('applications');
             if (users == null) {
-                return res.status(404).send(this.container.errors.formatErrors({
-                    error: 'not_found',
-                    error_description: '
-                }));Users not found'
+                res.status(202).send(regex_search);
             }
             return res.status(200).send({ users });
         } catch (err) {
